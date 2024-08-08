@@ -1,0 +1,41 @@
+is_package: true
+container:
+  type: HtmlTemplate
+  properties: {html: '@theme:standard-page.html'}
+components:
+- type: ColumnPanel
+  properties: {col_widths: '{}'}
+  name: content_panel
+  layout_properties: {slot: default}
+  components:
+  - name: label_1
+    properties: {text: Setup, role: title, font_size: 72, spacing_below: large}
+    type: Label
+    layout_properties: {grid_position: 'PKKXNC,VZFFXC', full_width_row: true}
+  - name: spacer_1
+    properties: {height: '1'}
+    type: Spacer
+    layout_properties: {grid_position: 'SKSZQC,MWXAYN', full_width_row: true, row_background: 'theme:Primary'}
+- type: FlowPanel
+  properties: {}
+  name: navbar_links
+  layout_properties: {slot: nav-right}
+- name: title_label
+  properties: {text: TimeAdvisor, role: headline, icon: ''}
+  type: Label
+  layout_properties: {slot: title}
+- name: linear_panel_1
+  properties: {}
+  type: LinearPanel
+  layout_properties: {slot: left-nav}
+  components:
+  - name: button_1
+    properties: {text: Setup, role: elevated-button}
+    type: Button
+    layout_properties: {}
+    event_bindings: {click: button_1_click}
+  - name: process_button
+    properties: {text: Process, role: elevated-button}
+    type: Button
+    layout_properties: {}
+    event_bindings: {click: process_button_click}
