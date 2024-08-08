@@ -16,6 +16,28 @@ components:
     properties: {height: '1'}
     type: Spacer
     layout_properties: {grid_position: 'SKSZQC,MWXAYN', full_width_row: true, row_background: 'theme:Primary'}
+  - name: label_2
+    properties: {text: Select Client-Matter Data File, role: headline}
+    type: Label
+    layout_properties: {grid_position: 'GZBRUY,JGPXCJ', full_width_row: true}
+  - name: column_panel_1
+    properties: {}
+    type: ColumnPanel
+    layout_properties: {grid_position: 'GZBRUY,TOTGPV'}
+    components:
+    - name: file_loader_1
+      properties: {role: filled-button, align: left}
+      type: FileLoader
+      layout_properties: {grid_position: 'VDPCET,JDAKNU', full_width_row: true}
+      event_bindings: {change: file_loader_1_change}
+  - name: label_2_copy
+    properties: {text: Select Folder to Process, role: headline}
+    type: Label
+    layout_properties: {grid_position: 'DGGJZO,DGWCLX', full_width_row: true}
+  - name: file_loader_1_copy
+    properties: {role: filled-button, align: left}
+    type: FileLoader
+    layout_properties: {grid_position: 'DGGJZO,RKBKKW'}
 - type: FlowPanel
   properties: {}
   name: navbar_links
