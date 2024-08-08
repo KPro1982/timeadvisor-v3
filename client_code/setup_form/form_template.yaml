@@ -32,7 +32,7 @@ components:
       event_bindings: {change: file_loader_1_change}
       data_bindings: []
   - name: label_2_copy
-    properties: {text: Select Folder to Process, role: headline}
+    properties: {text: Select Email to Process, role: headline}
     type: Label
     layout_properties: {grid_position: 'DGGJZO,DGWCLX', full_width_row: true}
   - name: file_loader_1_copy
