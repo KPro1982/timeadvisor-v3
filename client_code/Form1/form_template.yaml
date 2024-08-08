@@ -12,3 +12,7 @@ components:
   properties: {}
   name: navbar_links
   layout_properties: {slot: nav-right}
+- name: title_label
+  properties: {text: TimeAdvisor, role: headline, icon: clock}
+  type: Label
+  layout_properties: {slot: title}
