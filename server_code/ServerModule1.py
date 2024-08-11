@@ -13,12 +13,29 @@ import anvil.media
 # Here is an example - you can replace it with your own:
 #
 
+ClientDict = ""
   
 @anvil.server.callable
 def SetClientData(file_name, file_object):
-  print("Hello World")
- # ClientDict = pd.read_excel(client_data)
- # print(ClientDict)
-  
+  global ClientDict
+  print("Client_Data_Processing")
+  ClientDict = pd.read_excel(file_object.get_bytes())
+  GetMatterNumberList()
+  GetAliasesList()
 
+def GetAliasesList():
+    global ClientDict
+    clientData = ClientDict
+    aliasesList = clientData.to_dict('list')['Name']
+    aliasesList.insert(0,"None")
+    print(aliasesList)
+  
+def GetMatterNumberList():
+  global ClientDict
+  clientData = ClientDict
+  matterList = clientData.to_dict('list')['Client/Matter Number']
+  matterList.insert(0,"None")
+  print(matterList)
+   
+  # return matterList
   
