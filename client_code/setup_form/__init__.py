@@ -22,3 +22,7 @@ class setup_form(setup_formTemplate):
   def file_loader_1_change(self, file, **event_args):
     """This method is called when a new file is loaded into this FileLoader"""
     pass
+
+  def button_2_click(self, **event_args):
+    text = anvil.server.call('ChangeName', 'clientdanny')
+    self.return_text.text = text

@@ -1,7 +1,7 @@
 is_package: true
 container:
   type: HtmlTemplate
-  properties: {html: '@theme:standard-page.html'}
+  properties: {html: '@theme:standard-page.html', role: null}
 components:
 - type: ColumnPanel
   properties: {col_widths: '{}'}
@@ -39,6 +39,15 @@ components:
     properties: {role: filled-button, align: left, file_types: '.msg,.eml', multiple: true}
     type: FileLoader
     layout_properties: {grid_position: 'DGGJZO,RKBKKW'}
+  - name: button_2
+    properties: {text: Attempt to Call Local Computer}
+    type: Button
+    layout_properties: {grid_position: 'VYKLQY,KXAWWG'}
+    event_bindings: {click: button_2_click}
+  - name: return_text
+    properties: {text: Waiting}
+    type: Label
+    layout_properties: {grid_position: 'CXEWMN,GURMDG'}
 - type: FlowPanel
   properties: {}
   name: navbar_links
