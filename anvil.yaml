@@ -15,3 +15,4 @@ services:
   server_config: {}
 metadata: {title: TimeAdvisor, logo_img: 'asset:Timeadvisor_icon.jpg', description: Build with anvil works}
 startup: {type: form, module: setup_form}
+uplink_visible: true

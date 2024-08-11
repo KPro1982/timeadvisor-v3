@@ -1,5 +1,6 @@
 from ._anvil_designer import setup_formTemplate
 from anvil import *
+import anvil.server
 
 
 class setup_form(setup_formTemplate):
