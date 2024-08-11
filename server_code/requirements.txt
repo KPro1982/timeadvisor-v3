@@ -1,1 +1,4 @@
 openpyxl==3.2.0b1
+langchain
+langchain-community
+langchain-prompts
