@@ -19,7 +19,7 @@ def Process_Msg(name):
 
 @anvil.server.callable
 def MakeXL(data):
-    df = pd.json_normalize(data, max_level=0)
+    df = pd.json_normalize(data)
     print(df)
     file_name = 'TimeEntryData.xlsx'
     datatoexcel = pd.ExcelWriter(file_name)
