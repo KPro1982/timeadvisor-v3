@@ -8,7 +8,7 @@ import anvil.server
 # Here is an example - you can replace it with your own:
 #
 @anvil.server.callable
-def ChangeName(name):
+def Process_Msg(name):
   newname = name + "- Changed it"
   return newname
 
