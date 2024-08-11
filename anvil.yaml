@@ -13,6 +13,13 @@ services:
 - source: /runtime/services/tables.yml
   client_config: {}
   server_config: {}
+- source: /runtime/services/anvil/secrets.yml
+  client_config: {}
+  server_config: {}
 metadata: {title: TimeAdvisor, logo_img: 'asset:Timeadvisor_icon.jpg', description: Build with anvil works}
 startup: {type: form, module: setup_form}
 uplink_visible: true
+secrets:
+  OPENAI_API_KEY:
+    value: {CWQSJE54273JU7WL: WGfLIg/QOKNxXC4aBbkZLuMtk3E1pBNN8mqjxYNO17EWoBNXEJZcXmke0L2siJi1YUKXSZv5kO0Ux+6jL035an8N4cg9SKxNh+85oL9q8mBuKVs5/UtLHbDyZ+0gCa5i8zx/1caNS3C9IS+8hciiz7hO7S42Zpbg4++YIJfJtm2v4+4+ju+CovQ35TajJ7d9fdUynqPyuQ==}
+    type: secret
