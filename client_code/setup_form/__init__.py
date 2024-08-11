@@ -1,6 +1,9 @@
 from ._anvil_designer import setup_formTemplate
 from anvil import *
 import anvil.server
+import anvil.media
+import json
+
 
 
 class setup_form(setup_formTemplate):
@@ -19,10 +22,15 @@ class setup_form(setup_formTemplate):
     """This method is called when the button is clicked"""
     open_form('process_form')
 
-  def file_loader_1_change(self, file, **event_args):
+  def client_data_change(self, file, **event_args):
     """This method is called when a new file is loaded into this FileLoader"""
     pass
 
   def button_2_click(self, **event_args):
     text = anvil.server.call('ChangeName', 'clientdanny')
     self.return_text.text = text
+
+  def json_path_change(self, file, **event_args):
+    data = json.loads(self.json_path.file.get_bytes()) 
+    self.json_display.text = data
+    anvil.media.download(anvil.server.call('MakeXL', data))
