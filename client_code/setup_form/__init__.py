@@ -23,7 +23,9 @@ class setup_form(setup_formTemplate):
     open_form('process_form')
 
   def client_data_change(self, file, **event_args):
-   anvil.server.call('SetClientData',self.client_data)
+    print(file.name, file)
+    anvil.server.call('SetClientData',file.name, file)
+
 
   def button_2_click(self, **event_args):
     text = anvil.server.call('ChangeName', 'clientdanny')

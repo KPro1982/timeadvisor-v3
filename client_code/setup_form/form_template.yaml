@@ -44,6 +44,18 @@ components:
     properties: {}
     type: TextArea
     layout_properties: {grid_position: 'BRFRLG,OUIYVX'}
+  - name: data_grid_1
+    properties:
+      columns:
+      - {id: JKSDUP, title: Column 1, data_key: column_1}
+      - {id: VJQQOR, title: Column 2, data_key: column_2}
+      - {id: OJLQEN, title: Column 3, data_key: column_3}
+    type: DataGrid
+    components:
+    - name: repeating_panel_1
+      properties: {item_template: setup_form.RowTemplate2}
+      type: RepeatingPanel
+    layout_properties: {grid_position: 'UENOUO,UZMSZD'}
 - type: FlowPanel
   properties: {}
   name: navbar_links
