@@ -35,7 +35,6 @@ matterList = ""
 def MakePanda(data):
   global df 
   df = pd.json_normalize(data)
-  print(type(df))
   file_name = 'TimeEntryData.xlsx'
   datatoexcel = pd.ExcelWriter(file_name)
   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
@@ -50,7 +49,6 @@ def generate(entryIndex):
     subject = ""
     for index, row in df.iterrows():
       
-      print("index:", index)
       subject = row['subject']
       msg_from = row['sender']
       msg_recipients = row['recipients']
@@ -102,25 +100,22 @@ def generateClientMatter(index,subject):
     prompt = PromptTemplate.from_template(template_string)
     
     chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-    print("Subject: ", subject)
+
     
     doc =  Document(page_content=subject)
     output_clientmatter = chain.run([doc])
     output = output_clientmatter.strip()
-    print("Client-Alias = ", output)
 
     client = 0000
     matter = 00000
     try:
       cmIndex = aliasesList.index(output)
-      print("cmIndex", cmIndex)
     except ValueError:
       cmIndex = -1
     if(cmIndex > -1):
       df.at[index, 'alias'] = output
       clientmatter = matterList[cmIndex]
       cmarr = clientmatter.split('-')
-      print("cmarr: ", cmarr)
       try:
         df.at[index,'client']  = cmarr[0]
         client = cmarr[0]
@@ -163,7 +158,6 @@ def generateNarrative(index,msg_recipient, msg_from, msg_body, msg_subject):
 @anvil.server.callable
 def SetClientData(file_object):
   global clientDict
-  print("Client_Data_Processing")
   clientDict = pd.read_excel(file_object.get_bytes())
   GetAliasesList()
   GetMatterNumberList()
@@ -191,7 +185,6 @@ def Process(data, file_object):
   SetClientData(file_object)
   generate(0)
   row_list = df.loc[0, :].values.flatten().tolist()
-  print("Return Type: ", type(row_list))
   return row_list
 
 @anvil.server.callable

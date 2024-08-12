@@ -52,9 +52,11 @@ class setup_form(setup_formTemplate):
       y = anvil.server.call('Process', x, file)  
       print("returned value: ", y)
       newdata.append(y)
-
-      
+      if(y % 10 == 0):
+        anvil.media.download(anvil.server.call('Save',newdata))
     anvil.media.download(anvil.server.call('Save',newdata))
+      
+    
     
   def resize_list(self, big_list):
     new_list = []
