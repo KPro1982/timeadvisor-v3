@@ -186,7 +186,7 @@ def Process(data, file_object):
 
 @anvil.server.callable
 def Save(data):
-   df = pd.DataFrame.from_records(data,index=['1', '2']) 
+   df = pd.DataFrame(data) 
    print("DATAFRAME: ", df)
    file_name = 'TimeEntryData.xlsx'
    datatoexcel = pd.ExcelWriter(file_name)
