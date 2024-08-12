@@ -40,10 +40,16 @@ components:
     type: FileLoader
     layout_properties: {grid_position: 'DGGJZO,LGXZHX'}
     event_bindings: {change: json_path_change}
-  - name: json_display
+  - name: column_panel_2
     properties: {}
-    type: TextArea
-    layout_properties: {grid_position: 'BRFRLG,OUIYVX'}
+    type: ColumnPanel
+    layout_properties: {grid_position: 'WBXVZH,KAYTVM'}
+    components:
+    - name: submit_button
+      properties: {text: SUBMIT, role: tonal-button}
+      type: Button
+      layout_properties: {grid_position: 'PXXECS,IEQLVZ'}
+      event_bindings: {click: submit_button_click}
 - type: FlowPanel
   properties: {}
   name: navbar_links
