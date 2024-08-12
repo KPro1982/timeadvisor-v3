@@ -182,7 +182,7 @@ def Process(data, file_object):
   SetClientData(file_object)
   generate(0)
   # print("AFTER GENERATION:", df.to_json(orient='index'))
-  return df.to_json(orient='index')
+  return df.to_json(orient='records')
 
 @anvil.server.callable
 def Save(data):
