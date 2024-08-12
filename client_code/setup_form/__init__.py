@@ -48,7 +48,7 @@ class setup_form(setup_formTemplate):
     file = self.client_data.file
 
  
-    for i in range(3):
+    for i in range(30):
       x = data.pop(0)
       print("popped: ", len(data))
       # print("XXXX:",x)
