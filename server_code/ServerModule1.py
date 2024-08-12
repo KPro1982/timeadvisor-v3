@@ -41,30 +41,35 @@ def MakePanda(data):
   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
   return anvil.media.from_file(file_name)
   
-# @anvil.server.background_task
-def generate():
+def generate(entryIndex):
     global df
     global aliasesList
     global matterList
-
-    df = df.reset_index() 
+    
 
     subject = ""
     for index, row in df.iterrows():
+      
+      print("index:", index)
       subject = row['subject']
-      msg_from = row('sender')
-      msg_recipients = row('recipients')
-      msg_body = row('body')
+      msg_from = row['sender']
+      msg_recipients = row['recipients']
+      msg_body = row['body']
       
       if(subject != subject):
         break
-      generateClientMatter(subject)
-      generateNarrative(msg_recipients, msg_from, msg_body, subject):
+        
+      if(entryIndex == index):
+        generateClientMatter(index, subject)
+        generateNarrative(index, msg_recipients, msg_from, msg_body, subject)
+        break
+      
+        
 
 
 
 
-def generateClientMatter(subject):
+def generateClientMatter(index,subject):
     global df
     global aliasesList
     global matterList
@@ -108,31 +113,30 @@ def generateClientMatter(subject):
     matter = 00000
     try:
       cmIndex = aliasesList.index(output)
-      print("Index", cmIndex)
+      print("cmIndex", cmIndex)
     except ValueError:
       cmIndex = -1
     if(cmIndex > -1):
-      df.at[cmIndex, 'alias'] = output
+      df.at[index, 'alias'] = output
       clientmatter = matterList[cmIndex]
       cmarr = clientmatter.split('-')
       print("cmarr: ", cmarr)
       try:
-        df.at[cmIndex,'client']  = cmarr[0]
+        df.at[index,'client']  = cmarr[0]
         client = cmarr[0]
       except IndexError:
         client = 0000
 
       try:
-        df.at[cmIndex,'matter'] = cmarr[1]
+        df.at[index,'matter'] = cmarr[1]
         matter = cmarr[1]
       except IndexError:
         matter = 00000
         
       print("CLIENT/MATTER:", client, matter)  
 
-def generateNarrative(msg_recipient, msg_from, msg_body, msg_subject):
+def generateNarrative(index,msg_recipient, msg_from, msg_body, msg_subject):
     llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
-AI(temperature=0.3, model_name="gpt-3.5-turbo-16k")
     prompt_template = """
     You are a secretary working for attorney Daniel Cravens. Your job is to create a billing entry that succinctly summarizes the work that Daniel Cravens performed based on the email provided. You must begin your billing entry with a verb. 
     
@@ -147,12 +151,11 @@ AI(temperature=0.3, model_name="gpt-3.5-turbo-16k")
     """
     prompt = PromptTemplate.from_template(prompt_template)
     chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-    docs =  Document(page_content=msg_subject)
-    docs.insert(1, Document(page_content=msg_body)
-    docs.insert(2, Document(page_content=msg_from)
-    docs.insert(3, Document(page_content=msg_recipient)
+    stuffedshit = msg_subject + msg_from + msg_recipient + msg_body
+    docs =  Document(page_content=stuffedshit)
     output_summary = chain.run([docs])
-    return output_summary
+    print("Narrative: ", output_summary)
+    df.at[index,'narrative'] = output_summary
 
   
 
@@ -183,12 +186,17 @@ def GetMatterNumberList():
 
 @anvil.server.callable
 def Process(data, file_object):
-  MakePanda(data)
+  global df
+  MakePanda(data)  
   SetClientData(file_object)
-  generate()
-  file_name = 'TimeEntryData.xlsx'
-  datatoexcel = pd.ExcelWriter(file_name)
-  df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
-  return anvil.media.from_file(file_name)
-  #task = anvil.server.launch_background_task('generateClientAlias')
-  
+  generate(0)
+  row_list = df.loc[0, :].values.flatten().tolist()
+  print("Return Type: ", type(row_list))
+  return row_list
+
+@anvil.server.callable
+def Save(data):
+   file_name = 'TimeEntryData.xlsx'
+   datatoexcel = pd.ExcelWriter(file_name)
+   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
+   return anvil.media.from_file(file_name)
