@@ -35,10 +35,7 @@ matterList = ""
 def MakePanda(data):
   global df 
   df = pd.json_normalize(data)
-  file_name = 'TimeEntryData.xlsx'
-  datatoexcel = pd.ExcelWriter(file_name)
-  df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
-  return anvil.media.from_file(file_name)
+ 
   
 def generate(entryIndex):
     global df
@@ -184,12 +181,13 @@ def Process(data, file_object):
   MakePanda(data)  
   SetClientData(file_object)
   generate(0)
-  row_list = df.loc[0, :].values.flatten().tolist()
-  return row_list
+  # print("AFTER GENERATION:", df.to_json(orient='index'))
+  return df.to_json(orient='index')
 
 @anvil.server.callable
 def Save(data):
+   df = pd.json_normalize(data)
    file_name = 'TimeEntryData.xlsx'
    datatoexcel = pd.ExcelWriter(file_name)
-   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
+   df.to_excel(file_name)  
    return anvil.media.from_file(file_name)

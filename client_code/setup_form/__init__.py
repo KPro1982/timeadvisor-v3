@@ -42,21 +42,29 @@ class setup_form(setup_formTemplate):
 
   def submit_button_click(self, **event_args):
     data = json.loads(self.json_path.file.get_bytes())
-    print("data type:", type(data))
     data = self.resize_list(data)
-    newdata = []
-    print("size: ", len(data))
+    # print("resized data:", data)
+    # print("size: ", len(data))
     file = self.client_data.file
 
-    for x in data:
-      y = anvil.server.call('Process', x, file)  
-      print("returned value: ", y)
-      newdata.append(y)
-      if(y % 10 == 0):
-        anvil.media.download(anvil.server.call('Save',newdata))
-    anvil.media.download(anvil.server.call('Save',newdata))
-      
+ 
+    for i in range(3):
+      x = data.pop(0)
+      print("popped: ", len(data))
+      # print("XXXX:",x)
+      y = anvil.server.call('Process', x, file) 
+      # print("YYYYYY",y )
+      print("Processed:", i)
+      data.append(y)    
+      print("Length:", len(data))
+    else:
+      print("Finally finished!")
+      anvil.media.download(anvil.server.call('Save',data))
+
     
+
+
+
     
   def resize_list(self, big_list):
     new_list = []
