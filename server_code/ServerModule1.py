@@ -41,9 +41,11 @@ def MakePanda(data):
   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
   return anvil.media.from_file(file_name)
   
-@anvil.server.background_task
+# @anvil.server.background_task
 def generateClientAlias():
     global df
+    global aliasesList
+    global matterList
     llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
     AliasesString = aliasesList.__str__()
     df = df.reset_index() 
@@ -84,7 +86,22 @@ def generateClientAlias():
       output_clientmatter = chain.run([doc])
       output = output_clientmatter.strip()
       print("Client-Alias = ", output)
+      row['alias'] = output
+      try:
+        cmIndex = aliasesList.index(output)
+      except ValueError:
+        cmIndex = -1
+      if(cmIndex > -1):
+        clientmatter = matterList.pop(cmIndex)
+        matterList.append(clientmatter)
+        cmarr = clientmatter.split('-')
+        print("CLIENT/MATTER:", cmar[0], cmar[1])
+        row['client'] = cmarr[0]
+        row['matter'] = cmarr[1]
+        
 
+
+  
 
   
 @anvil.server.callable
@@ -115,5 +132,10 @@ def GetMatterNumberList():
 def Process(data, file_object):
   MakePanda(data)
   SetClientData(file_object)
-  task = anvil.server.launch_background_task('generateClientAlias')
+  generateClientAlias()
+  file_name = 'TimeEntryData.xlsx'
+  datatoexcel = pd.ExcelWriter(file_name)
+  df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
+  return anvil.media.from_file(file_name)
+  #task = anvil.server.launch_background_task('generateClientAlias')
   
