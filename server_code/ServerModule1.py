@@ -47,9 +47,10 @@ def generateClientAlias():
     llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
     AliasesString = aliasesList.__str__()
     df = df.reset_index() 
-  
+
+    
     for index, row in df.iterrows():
-      print(row['subject'])
+      subject = row['subject']
       template_string = """
       You are an attorney billing expert. Your job is to infer the client alias from the folowing subject line of an email: {text}       
       In most cases, the subject of the email will contain the alias. In those cases you will compare the email subject with the LIST OF APPROVED ALIASES and return the alias FROM THE LIST OF APPROVED ALIASES that best matches the subject line.   
@@ -72,15 +73,17 @@ def generateClientAlias():
   
       THE LIST OF APPROVED ALIASES FOLLOWS = """ + AliasesString 
 
-
-
-
-    prompt = PromptTemplate.from_template(template_string)
-    
-    chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-    output_clientmatter = chain.run(docs)
-    output = output_clientmatter.strip()
-    print("Client-Alias = ", output)
+      prompt = PromptTemplate.from_template(template_string)
+      
+      chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
+  
+      doc=Document(
+                  page_content=subject,
+                  metadata={"source": "local"}
+              )
+      output_clientmatter = chain.run(doc)
+      output = output_clientmatter.strip()
+      print("Client-Alias = ", output)
 
 
   
