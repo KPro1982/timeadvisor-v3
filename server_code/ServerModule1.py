@@ -86,18 +86,32 @@ def generateClientAlias():
       output_clientmatter = chain.run([doc])
       output = output_clientmatter.strip()
       print("Client-Alias = ", output)
-      row['alias'] = output
+
+      client = 0000
+      matter = 00000
       try:
         cmIndex = aliasesList.index(output)
+        print("Indexe", cmIndex)
       except ValueError:
         cmIndex = -1
       if(cmIndex > -1):
-        clientmatter = matterList.pop(cmIndex)
-        matterList.append(clientmatter)
+        df.at[cmIndex, 'alias'] = output
+        clientmatter = matterList[cmIndex]
         cmarr = clientmatter.split('-')
-        print("CLIENT/MATTER:", cmar[0], cmar[1])
-        row['client'] = cmarr[0]
-        row['matter'] = cmarr[1]
+        print("cmarr: ", cmarr)
+        try:
+          df.at[cmIndex,'client']  = cmarr[0]
+          client = cmarr[0]
+        except IndexError:
+          client = 0000
+
+        try:
+          df.at[cmIndex,'matter'] = cmarr[1]
+          matter = cmarr[1]
+        except IndexError:
+          matter = 00000
+          
+        print("CLIENT/MATTER:", client, matter)
         
 
 
