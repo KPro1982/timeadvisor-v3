@@ -42,78 +42,117 @@ def MakePanda(data):
   return anvil.media.from_file(file_name)
   
 # @anvil.server.background_task
-def generateClientAlias():
+def generate():
     global df
     global aliasesList
     global matterList
-    llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
-    AliasesString = aliasesList.__str__()
+
     df = df.reset_index() 
 
     subject = ""
     for index, row in df.iterrows():
       subject = row['subject']
+      msg_from = row('sender')
+      msg_recipients = row('recipients')
+      msg_body = row('body')
+      
       if(subject != subject):
         break
-      template_string = """
-      You are an attorney billing expert. Your job is to infer the client alias from the folowing subject line of an email: {text}       
-      In most cases, the subject of the email will contain the alias. In those cases you will compare the email subject with the LIST OF APPROVED ALIASES and return the alias FROM THE LIST OF APPROVED ALIASES that best matches the subject line.   
-      
-      For example, where the email subject is "topix -- quick questions", you would compare this to the list of approved aliases and infer that Page v. Topix Pharmaceuticals is the best fit for the alias because none of the other aliases contain the work topix.
-      
-      In some cases, the subject will not contain enough information to infer the alias. In those case, you will look at the body of the email for information that matches an alias FROM THE LIST OF APPROVED ALIASES. 
-      Example 1: you may infer the  alias: Page v. Topix Pharmaceuticals where the body of the email refers to a person named Page. 
-      Example 2: you may infer the alias: Aguilera v. Turner Systems, Inc. where the subject of the email refers to Turner.
-  
-      IMPORTANT: YOUR RESPONSE SHOULD NOT BE CONVERSATIONAL. YOUR REPSONSE ONLY CONTAIN THE ALIAS FROM THE LIST OF APPROVED ALIASES WITHOUT ANY ADDITIONAL WORDS. 
-  
-      INCORRECT response: Based on the information provided in the email, the inferred client alias is "Gonzalez v. DS Electric, Inc."
-      CORRECT response: Gonzalez v. DS Electric, Inc.
-  
-      IMPORTANT: IF YOU CANNOT INFER AN ALIAS FROM THE CONTENT PROVIDED, YOUR MUST RESPOND WITH THE SINGLE WORD: None
-  
-      INCORRECT response: The inferred client alias from the email is None.
-      CORRECT response: none
-  
-      THE LIST OF APPROVED ALIASES FOLLOWS = """ + AliasesString 
+      generateClientMatter(subject)
+      generateNarrative(msg_recipients, msg_from, msg_body, subject):
 
-      prompt = PromptTemplate.from_template(template_string)
-      
-      chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-      print("Subject: ", subject)
-      
-      doc =  Document(page_content=subject)
-      output_clientmatter = chain.run([doc])
-      output = output_clientmatter.strip()
-      print("Client-Alias = ", output)
 
-      client = 0000
-      matter = 00000
+
+
+def generateClientMatter(subject):
+    global df
+    global aliasesList
+    global matterList
+
+    llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
+    AliasesString = aliasesList.__str__()
+
+    template_string = """
+    You are an attorney billing expert. Your job is to infer the client alias from the folowing subject line of an email: {text}       
+    In most cases, the subject of the email will contain the alias. In those cases you will compare the email subject with the LIST OF APPROVED ALIASES and return the alias FROM THE LIST OF APPROVED ALIASES that best matches the subject line.   
+    
+    For example, where the email subject is "topix -- quick questions", you would compare this to the list of approved aliases and infer that Page v. Topix Pharmaceuticals is the best fit for the alias because none of the other aliases contain the work topix.
+    
+    In some cases, the subject will not contain enough information to infer the alias. In those case, you will look at the body of the email for information that matches an alias FROM THE LIST OF APPROVED ALIASES. 
+    Example 1: you may infer the  alias: Page v. Topix Pharmaceuticals where the body of the email refers to a person named Page. 
+    Example 2: you may infer the alias: Aguilera v. Turner Systems, Inc. where the subject of the email refers to Turner.
+
+    IMPORTANT: YOUR RESPONSE SHOULD NOT BE CONVERSATIONAL. YOUR REPSONSE ONLY CONTAIN THE ALIAS FROM THE LIST OF APPROVED ALIASES WITHOUT ANY ADDITIONAL WORDS. 
+
+    INCORRECT response: Based on the information provided in the email, the inferred client alias is "Gonzalez v. DS Electric, Inc."
+    CORRECT response: Gonzalez v. DS Electric, Inc.
+
+    IMPORTANT: IF YOU CANNOT INFER AN ALIAS FROM THE CONTENT PROVIDED, YOUR MUST RESPOND WITH THE SINGLE WORD: None
+
+    INCORRECT response: The inferred client alias from the email is None.
+    CORRECT response: none
+
+    THE LIST OF APPROVED ALIASES FOLLOWS = """ + AliasesString 
+
+    prompt = PromptTemplate.from_template(template_string)
+    
+    chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
+    print("Subject: ", subject)
+    
+    doc =  Document(page_content=subject)
+    output_clientmatter = chain.run([doc])
+    output = output_clientmatter.strip()
+    print("Client-Alias = ", output)
+
+    client = 0000
+    matter = 00000
+    try:
+      cmIndex = aliasesList.index(output)
+      print("Index", cmIndex)
+    except ValueError:
+      cmIndex = -1
+    if(cmIndex > -1):
+      df.at[cmIndex, 'alias'] = output
+      clientmatter = matterList[cmIndex]
+      cmarr = clientmatter.split('-')
+      print("cmarr: ", cmarr)
       try:
-        cmIndex = aliasesList.index(output)
-        print("Indexe", cmIndex)
-      except ValueError:
-        cmIndex = -1
-      if(cmIndex > -1):
-        df.at[cmIndex, 'alias'] = output
-        clientmatter = matterList[cmIndex]
-        cmarr = clientmatter.split('-')
-        print("cmarr: ", cmarr)
-        try:
-          df.at[cmIndex,'client']  = cmarr[0]
-          client = cmarr[0]
-        except IndexError:
-          client = 0000
+        df.at[cmIndex,'client']  = cmarr[0]
+        client = cmarr[0]
+      except IndexError:
+        client = 0000
 
-        try:
-          df.at[cmIndex,'matter'] = cmarr[1]
-          matter = cmarr[1]
-        except IndexError:
-          matter = 00000
-          
-        print("CLIENT/MATTER:", client, matter)
+      try:
+        df.at[cmIndex,'matter'] = cmarr[1]
+        matter = cmarr[1]
+      except IndexError:
+        matter = 00000
         
+      print("CLIENT/MATTER:", client, matter)  
 
+def generateNarrative(msg_recipient, msg_from, msg_body, msg_subject):
+    llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
+AI(temperature=0.3, model_name="gpt-3.5-turbo-16k")
+    prompt_template = """
+    You are a secretary working for attorney Daniel Cravens. Your job is to create a billing entry that succinctly summarizes the work that Daniel Cravens performed based on the email provided. You must begin your billing entry with a verb. 
+    
+    EXAMPLE 1: Where Daniel Cravens is emailing with a person outside of the ohaganmeyer.com domain, begin the billing entry with "Email communication with [insert name of person to whom Daniel was communicating] concerning [description of work]. 
+    
+    Example 2: Where Daniel Cravens is email the opposing attorney on the case, the summary would begin "Meet and confer correspondence with opposing counsel [insert name of opposing counsel] regarding [insert subject matter of discussion]"
+
+    EXAMPLE 3: Where Daniel Cravens is providing instructions to a person within the ohaganmeyer.com domain, the work performed should be written work product that will ultimately be produced but should not mention the name of the people. For example, where the Daniel instructions Caleb to prepare a shell for a motion to compel, the entry would be: "Update and revise motion to compel"
+    
+    Email to summarize: "{text}"
+    
+    """
+    prompt = PromptTemplate.from_template(prompt_template)
+    chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
+    docs =  Document(page_content=msg_subject)
+    docs.insert(1, Document(page_content=msg_body)
+    docs.insert(2, Document(page_content=msg_from)
+    docs.insert(3, Document(page_content=msg_recipient)
+    output_summary = chain.run([docs])
+    return output_summary
 
   
 
@@ -146,7 +185,7 @@ def GetMatterNumberList():
 def Process(data, file_object):
   MakePanda(data)
   SetClientData(file_object)
-  generateClientAlias()
+  generate()
   file_name = 'TimeEntryData.xlsx'
   datatoexcel = pd.ExcelWriter(file_name)
   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
