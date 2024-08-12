@@ -41,16 +41,18 @@ def MakePanda(data):
   df.to_excel(file_name, columns=['userId','timekeepr','client','matter','task','activity','billable','hoursWorked','hoursBilled','rate','amount','narrative','alias','length','subject','bcc','body', 'cc','date','filename','messageId','recipients','sender'])  # 
   return anvil.media.from_file(file_name)
   
-  
+@anvil.server.background_task
 def generateClientAlias():
     global df
     llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo-16k", api_key=anvil.secrets.get_secret('OPENAI_API_KEY'))
     AliasesString = aliasesList.__str__()
     df = df.reset_index() 
 
-    
+    subject = ""
     for index, row in df.iterrows():
       subject = row['subject']
+      if(subject != subject):
+        break
       template_string = """
       You are an attorney billing expert. Your job is to infer the client alias from the folowing subject line of an email: {text}       
       In most cases, the subject of the email will contain the alias. In those cases you will compare the email subject with the LIST OF APPROVED ALIASES and return the alias FROM THE LIST OF APPROVED ALIASES that best matches the subject line.   
@@ -76,12 +78,10 @@ def generateClientAlias():
       prompt = PromptTemplate.from_template(template_string)
       
       chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-  
-      doc=Document(
-                  page_content=subject,
-                  metadata={"source": "local"}
-              )
-      output_clientmatter = chain.run(doc)
+      print("Subject: ", subject)
+      
+      doc =  Document(page_content=subject)
+      output_clientmatter = chain.run([doc])
       output = output_clientmatter.strip()
       print("Client-Alias = ", output)
 
@@ -115,5 +115,5 @@ def GetMatterNumberList():
 def Process(data, file_object):
   MakePanda(data)
   SetClientData(file_object)
-  generateClientAlias()
-   
+  task = anvil.server.launch_background_task('generateClientAlias')
+  
