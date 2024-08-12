@@ -50,14 +50,16 @@ class setup_form(setup_formTemplate):
     newdata = []
     for i in range(5):
       x = data.pop()
-      print("popped: ", len(data))
-      print("XXXX:",x)
+      # print("popped: ", len(data))
+      # print("XXXX:",x)
       y = anvil.server.call('Process', x, file) 
-      data.insert(0,y)
-      print("YYYYYY",y )
+      y.strip("[]")
+      newdata.insert(0,y)
+      print("newdata len:", len(newdata))
+      # print("YYYYYY",y )
     else:
       print("Finally finished!")
-      anvil.media.download(anvil.server.call('Save',data))
+      anvil.media.download(anvil.server.call('Save',newdata))
 
     
 

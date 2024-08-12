@@ -186,7 +186,8 @@ def Process(data, file_object):
 
 @anvil.server.callable
 def Save(data):
-   df = pd.json_normalize(data)
+   df = pd.DataFrame.from_records(data,index=['1', '2']) 
+   print("DATAFRAME: ", df)
    file_name = 'TimeEntryData.xlsx'
    datatoexcel = pd.ExcelWriter(file_name)
    df.to_excel(file_name)  
