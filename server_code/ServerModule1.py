@@ -5,6 +5,10 @@ import pandas as pd
 import json
 import anvil.media
 
+from anvil.tables import app_tables
+from marshmallow import Schema, fields, post_load
+from pprint import pprint
+from datetime import date
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import PromptTemplate
@@ -16,14 +20,75 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+class Entry:
+  def __init__(self,userId ,timekeepr ,client ,matter,task ,activity ,billable ,hoursWorked ,hoursBilled ,rate ,amount ,narrative ,alias ,length ,subject ,bcc ,body ,cc ,date ,filename ,messageId ,recipients ,sender ,sentdate):
+    self.userId = userId
+    self.timekeepr = timekeepr
+    self.client = client
+    self.matter = matter
+    self.task = task
+    self.activity = activity
+    self.billable = billable
+    self.hoursWorked = hoursWorked
+    self.hoursBilled = hoursBilled
+    self.rate = rate
+    self.amount = amount
+    self.narrative = narrative
+    self.alias = alias
+    self.length = length
+    self.subject = subject
+    self.bcc = bcc
+    self.body = body
+    self.cc = cc
+    self.date = date
+    self.filename = filename
+    self.messageId = messageId
+    self.recipients = recipients
+    self.sender = sender
+    self.sentdate = sentdate
 
-# This is a server module. It runs on the Anvil server,
-# rather than in the user's browser.
-#
-# To allow anvil.server.call() to call functions here, we mark
-# them with @anvil.server.callable.
-# Here is an example - you can replace it with your own:
-#
+  def __repr__(self):
+    return f'{self.client}-{self.matter}: {self.narrative}'
+
+  
+class EntrySchema(Schema):
+  userId = fields.Str()
+  timekeepr = fields.Str()
+  client = fields.Str()
+  matter = fields.Str()
+  task = fields.Str()
+  activity = fields.Str()
+  billable = fields.Str()
+  hoursWorked = fields.Str()
+  hoursBilled = fields.Str()
+  rate = fields.Str()
+  amount = fields.Str()
+  narrative = fields.Str()
+  alias = fields.Str()
+  length = fields.Str()
+  subject = fields.Str()
+  bcc = fields.Str()
+  body = fields.Str()
+  cc = fields.Str()
+  date = fields.Str()
+  filename = fields.Str()
+  messageId = fields.Str()
+  recipients = fields.Str()
+  sender = fields.Str()
+  sentdate = fields.Str()
+
+  @post_load
+  def change_none_to_string(self, data, **kwargs):
+      for field in data:
+          if data[field] is None:
+              data[field] = ""
+      return data
+    
+
+
+
+
+
 
 clientDict = ""
 aliasesList = ""
@@ -176,13 +241,15 @@ def GetMatterNumberList():
   matterList.insert(0,"None")
 
 @anvil.server.callable
-def Process(data, file_object):
-  global df
-  MakePanda(data)  
-  SetClientData(file_object)
-  generate(0)
-  # print("AFTER GENERATION:", df.to_json(orient='index'))
-  return df.to_json(orient='records')
+def Process(inputdata, file_object):
+  print("INPUTDATA:", inputdata)
+  schema = EntrySchema()
+  #original_entry = schema.load(inputdata)
+  #print(original_entry)
+  #SetClientData(file_object)
+  #generate(0)
+
+ # processed_entry = schema.dumps()
 
 @anvil.server.callable
 def Save(data):

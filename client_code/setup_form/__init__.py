@@ -53,10 +53,7 @@ class setup_form(setup_formTemplate):
       # print("popped: ", len(data))
       # print("XXXX:",x)
       y = anvil.server.call('Process', x, file) 
-      y.strip("[]")
-      newdata.insert(0,y)
-      print("newdata len:", len(newdata))
-      # print("YYYYYY",y )
+      print("YYYYYY",y )
     else:
       print("Finally finished!")
       anvil.media.download(anvil.server.call('Save',newdata))
